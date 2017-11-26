@@ -16,21 +16,32 @@
 
 package com.example.android.todolist;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.RadioButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.android.todolist.data.TaskContract;
 
 
 public class AddTaskActivity extends AppCompatActivity {
 
     // Declare a member variable to keep track of a task's selected mPriority
     private int mPriority;
+    private TextView mTaskTextView;
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_task);
+
+        mTaskTextView = (TextView) findViewById(R.id.editTextTaskDescription);
 
         // Initialize to highest mPriority by default (mPriority = 1)
         ((RadioButton) findViewById(R.id.radButton1)).setChecked(true);
@@ -43,14 +54,26 @@ public class AddTaskActivity extends AppCompatActivity {
      * It retrieves user input and inserts that new task data into the underlying database.
      */
     public void onClickAddTask(View view) {
-        // Not yet implemented
-        // TODO (6) Check if EditText is empty, if not retrieve input and store it in a ContentValues object
+        // COMPLETED (6) Check if EditText is empty, if not retrieve input and store it in a ContentValues object
+        if (TextUtils.isEmpty(mTaskTextView.getText())) {
+            return;
+        }
 
-        // TODO (7) Insert new task data via a ContentResolver
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(TaskContract.TaskEntry.COLUMN_DESCRIPTION, mTaskTextView.getText().toString());
+        contentValues.put(TaskContract.TaskEntry.COLUMN_PRIORITY, mPriority);
 
-        // TODO (8) Display the URI that's returned with a Toast
-        // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
+        // COMPLETED (7) Insert new task data via a ContentResolver
+        ContentResolver contentResolver = getContentResolver();
 
+        Uri newUri = contentResolver.insert(TaskContract.TaskEntry.CONTENT_URI, contentValues);
+
+        if (newUri != null) {
+            // COMPLETED (8) Display the URI that's returned with a Toast
+            Toast.makeText(this, newUri.toString(), Toast.LENGTH_SHORT).show();
+            // [Hint] Don't forget to call finish() to return to MainActivity after this insert is complete
+            finish();
+        }
     }
 
 
